@@ -6,10 +6,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ========================
 # CONFIGURACIONES BÁSICAS
 # ========================
-SECRET_KEY = "django-insecure-pon-aqui-tu-secret"  # cámbialo en producción
+SECRET_KEY = "django-insecure-pon-aqui-tu-secret"  
 DEBUG = True
-ALLOWED_HOSTS = ["*"]  # en prod: define tu dominio/IP
-
+ALLOWED_HOSTS = ["*"]
 
 # ========================
 # APLICACIONES INSTALADAS
@@ -37,21 +36,19 @@ INSTALLED_APPS = [
     "core",
 ]
 
-
 # ========================
 # MIDDLEWARE
 # ========================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",  # debe ir antes de CommonMiddleware
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 
 # ========================
 # URLS / WSGI
@@ -61,8 +58,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        # carpeta global de templates (PDF, etc.)
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates"],  # templates globales (PDF, etc.)
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -77,7 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-
 # ========================
 # BASE DE DATOS (SQLite)
 # ========================
@@ -87,7 +82,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
 
 # ========================
 # PASSWORD VALIDATION
@@ -99,7 +93,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-
 # ========================
 # INTERNACIONALIZACIÓN
 # ========================
@@ -108,14 +101,13 @@ TIME_ZONE = "America/Lima"
 USE_I18N = True
 USE_TZ = True
 
-
 # ========================
 # ARCHIVOS ESTÁTICOS
 # ========================
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]  # opcional en dev
+# Evita el warning si no existe la carpeta 'static'
+STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 
 # ========================
 # DJANGO REST FRAMEWORK
@@ -146,7 +138,6 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
 }
 
-
 # ========================
 # SIMPLE JWT
 # ========================
@@ -158,8 +149,7 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-
 # ========================
 # CORS (dev)
 # ========================
-CORS_ALLOW_ALL_ORIGINS = True  # en prod: usa CORS_ALLOWED_ORIGINS = [...]
+CORS_ALLOW_ALL_ORIGINS = True

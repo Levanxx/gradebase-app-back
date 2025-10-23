@@ -31,7 +31,6 @@ class Command(BaseCommand):
             nombre="A",
             defaults={"profesor": docente},
         )
-        # Si existía con otro profesor, lo ajustamos para la demo
         if not created_sec and seccion.profesor_id != docente.id:
             seccion.profesor = docente
             seccion.save(update_fields=["profesor"])

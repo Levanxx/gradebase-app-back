@@ -1,69 +1,98 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 
-NOTA_MIN = 0.0
-NOTA_MAX = 20.0
-nota_validators = [MinValueValidator(NOTA_MIN), MaxValueValidator(NOTA_MAX)]
-
-
-class Estudiante(models.Model):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, null=True, blank=True,
-        help_text="(Opcional) Usuario vinculado para login"
-    )
-    codigo = models.CharField(max_length=20, unique=True)
-    nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-
-    def __str__(self):
-        return f"{self.codigo} - {self.nombre} {self.apellido}"
-
-
-class Curso(models.Model):
-    codigo = models.CharField(max_length=20, unique=True)
-    nombre = models.CharField(max_length=200)
-
-    def __str__(self):
-        return f"{self.codigo} - {self.nombre}"
-
-
-class Seccion(models.Model):
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="secciones")
-    nombre = models.CharField(max_length=20)  # ej. "A", "B"
-    profesor = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="secciones_dictadas"
-    )
-
-    class Meta:
-        unique_together = ("curso", "nombre")
-        verbose_name = "Sección"
-        verbose_name_plural = "Secciones"
-
-    def __str__(self):
-        prof = f" ({self.profesor.username})" if self.profesor else ""
-        return f"{self.curso.nombre} - {self.nombre}{prof}"
-
-
-class Nota(models.Model):
-    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE, related_name="notas")
-    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name="notas")
-
-    avance1 = models.FloatField(null=True, blank=True, validators=nota_validators)
-    avance2 = models.FloatField(null=True, blank=True, validators=nota_validators)
-    avance3 = models.FloatField(null=True, blank=True, validators=nota_validators)
-    participacion = models.FloatField(null=True, blank=True, validators=nota_validators)
-    proyecto_final = models.FloatField(null=True, blank=True, validators=nota_validators)
-    nota_final = models.FloatField(null=True, blank=True, validators=nota_validators)
-
+class TimeStampedModel(models.Model):
+    """Base con marcas de tiempo."""
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("estudiante", "seccion")  # una fila por alumno x sección
-        ordering = ["-actualizado"]
+        abstract = True
 
-    def __str__(self):
-        return f"{self.estudiante.codigo} - {self.seccion}"
+
+class Estudiante(TimeStampedModel):
+    """
+    Estudiante de la institución.
+    Si el alumno inicia sesión, se puede enlazar con un usuario de Django.
+    """
+    user = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="estudiantes"
+    )
+    codigo = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=150)
+    apellido = models.CharField(max_length=150)
+    email = models.EmailField(unique=True, null=True, blank=True)
+
+    class Meta:
+        ordering = ["apellido", "nombre", "codigo"]
+
+    def __str__(self) -> str:
+        return f"{self.codigo} - {self.apellido}, {self.nombre}"
+
+
+class Curso(TimeStampedModel):
+    """Catálogo de cursos."""
+    codigo = models.CharField(max_length=20, unique=True)  # p.ej. FS, BIGD, IA, ...
+    nombre = models.CharField(max_length=200)
+
+    class Meta:
+        ordering = ["codigo"]
+
+    def __str__(self) -> str:
+        return f"{self.codigo} - {self.nombre}"
+
+
+class Seccion(TimeStampedModel):
+    """
+    Sección de un curso (A, B, 01, etc.) dictada por un profesor (usuario Django).
+    """
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="secciones")
+    nombre = models.CharField(max_length=50)  # p.ej. "A"
+    profesor = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="secciones_dictadas"
+    )
+
+    class Meta:
+        ordering = ["curso__codigo", "nombre"]
+        unique_together = ("curso", "nombre")  # una sección por curso
+
+    def __str__(self) -> str:
+        prof = f" - {self.profesor.username}" if self.profesor_id else ""
+        return f"{self.curso.codigo} - {self.nombre}{prof}"
+
+
+class Nota(TimeStampedModel):
+    """
+    Registro de notas por estudiante y sección.
+    Los campos numéricos tienen default=0 para evitar NULL en BD
+    (así el frontend siempre ve números y no celdas vacías).
+    """
+    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE, related_name="notas")
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name="notas")
+
+    avance1 = models.FloatField(default=0, null=False, blank=True)
+    avance2 = models.FloatField(default=0, null=False, blank=True)
+    avance3 = models.FloatField(default=0, null=False, blank=True)
+    participacion = models.FloatField(default=0, null=False, blank=True)
+    proyecto_final = models.FloatField(default=0, null=False, blank=True)
+    nota_final = models.FloatField(default=0, null=False, blank=True)
+
+    class Meta:
+        ordering = ["seccion__curso__codigo", "seccion__nombre", "estudiante__apellido", "estudiante__nombre"]
+        unique_together = ("estudiante", "seccion")  # una fila por alumno en la sección
+        indexes = [
+            models.Index(fields=["seccion"]),
+            models.Index(fields=["estudiante"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"Nota({self.estudiante.codigo} @ {self.seccion.curso.codigo}-{self.seccion.nombre})"
+
+    @property
+    def curso_codigo(self) -> str:
+        return self.seccion.curso.codigo
+
+    @property
+    def seccion_nombre(self) -> str:
+        return self.seccion.nombre
