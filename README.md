@@ -11,12 +11,12 @@
 
 ---
 
-## 📜 Descripción general del proyecto  
+##  Descripción general del proyecto  
 
 **GradeBase** es un sistema web académico que permite **gestionar cursos, secciones, estudiantes y notas** de forma eficiente y automatizada.  
 Está construido sobre **Django REST Framework**, y utiliza **Machine Learning** para proyectar el rendimiento académico de los estudiantes y detectar el riesgo de desaprobación.  
 
-Este proyecto busca **modernizar la gestión educativa**, optimizar la carga de notas y ofrecer herramientas inteligentes a docentes y alumnos.  
+El proyecto busca **modernizar la gestión educativa**, optimizar la carga de notas y ofrecer herramientas inteligentes a docentes y alumnos.  
 Incluye exportaciones en **CSV, XLSX y PDF**, junto con documentación API dinámica mediante **Swagger/OpenAPI**. 🚀  
 
 ---
@@ -40,10 +40,10 @@ Incluye exportaciones en **CSV, XLSX y PDF**, junto con documentación API diná
 
 ---
 
-## 💾 Instalación del proyecto  
+##  Instalación del proyecto  
 
 > [!NOTE]
-> ### 🧩 Instalación Local  
+> ###  Instalación Local  
 >  
 > 1. Clona este repositorio:  
 >    ```bash
@@ -84,112 +84,145 @@ Incluye exportaciones en **CSV, XLSX y PDF**, junto con documentación API diná
 
 ---
 
-## 🧠 Arquitectura General  
+##  Arquitectura General  
 
-```bash
-GradeBase Backend
-│
-├── config/                # Configuración global de Django
-│   ├── settings.py
-│   └── urls.py
-│
-├── core/                  # Aplicación principal
-│   ├── models.py          # Modelos de datos
-│   ├── serializers.py     # Serialización de datos
-│   ├── views.py           # Lógica de la API
-│   ├── permissions.py     # Roles y permisos
-│   ├── ml.py              # Algoritmos ML (regresión y clasificación)
-│   ├── admin.py           # Registro en el panel admin
-│   ├── management/        # Comandos personalizados
-│   │   ├── cargar_demo_prueba.py
-│   │   ├── importar_estudiantes_excel.py
-│   │   └── proyectar_notas.py
-│   └── migrations/        # Migraciones de base de datos
-│
-├── templates/reports/     # Plantillas HTML para reportes PDF
-├── requirements.txt       # Dependencias del proyecto
-└── README.md              # Este archivo
-```
-👥 Roles y Responsabilidades del Equipo
-ID	Rol	Integrante	Responsabilidades
-R1	Backend Developer / ML Engineer	Levanxx	Arquitectura, lógica de negocio, modelos ML y configuración de API.
-R2	API Developer / Documentation Lead	JhoanAronith	Endpoints DRF, exportaciones, documentación Swagger y testing de endpoints.
-📋 Requerimientos Funcionales
-ID	Descripción
-RF01	CRUD de estudiantes, cursos, secciones y notas.
-RF02	Autenticación y permisos por rol (admin, docente, estudiante).
-RF03	Visualización de notas y exportación a PDF/XLSX/CSV.
-RF04	API REST documentada con OpenAPI/Swagger.
-RF05	Proyección de notas con regresión lineal.
-RF06	Detección de riesgo académico con clasificación.
-⚙️ Requerimientos No Funcionales
-ID	Descripción
-RNF01	Interfaz limpia y responsive (Angular).
-RNF02	API escalable, segura y modular.
-RNF03	Cumplimiento de convenciones RESTful.
-RNF04	Validaciones robustas y mensajes de error claros.
-RNF05	Código documentado y estructurado bajo buenas prácticas.
-📈 Flujo de trabajo en Git
+**Estructura del proyecto GradeBase Backend:**
 
-[!TIP]
+GradeBase Backend  
+│  
+├── **config/** → Configuración global de Django  
+│ ├── settings.py  
+│ └── urls.py  
+│  
+├── **core/** → Aplicación principal  
+│ ├── models.py → Modelos de datos  
+│ ├── serializers.py → Serialización de datos  
+│ ├── views.py → Lógica de la API  
+│ ├── permissions.py → Roles y permisos  
+│ ├── ml.py → Algoritmos ML (regresión y clasificación)  
+│ ├── admin.py → Registro en el panel admin  
+│ ├── **management/** → Comandos personalizados  
+│ │ ├── cargar_demo_prueba.py  
+│ │ ├── importar_estudiantes_excel.py  
+│ │ └── proyectar_notas.py  
+│ └── **migrations/** → Migraciones de base de datos  
+│  
+├── **templates/reports/** → Plantillas HTML para reportes PDF  
+├── **requirements.txt** → Dependencias del proyecto  
+└── **README.md** → Este archivo   
 
-🔹 Flujo de commits atómicos y colaborativos
+---
 
-Crear branch por funcionalidad:
+## 👥 Roles y Responsabilidades del Equipo  
 
-git checkout -b feat/ml-module
+| ID  | Rol | Integrante | Responsabilidades |
+|-----|-----|-------------|-------------------|
+| R1  | **Backend Developer / ML Engineer** | **Levanxx** | Arquitectura, lógica de negocio, modelos ML y configuración de API. |
+| R2  | **API Developer / Documentation Lead** | **JhoanAronith** | Endpoints DRF, exportaciones, documentación Swagger y testing de endpoints. |
 
+---
 
-Commits atómicos (Conventional Commits):
+## 📋 Requerimientos Funcionales  
 
-git commit -m "feat(api): agregar endpoint de proyección de nota"
-git commit -m "fix(export): corregir error en PDF"
+| ID | Descripción |
+|----|--------------|
+| RF01 | CRUD de estudiantes, cursos, secciones y notas. |
+| RF02 | Autenticación y permisos por rol (admin, docente, estudiante). |
+| RF03 | Visualización de notas y exportación a PDF/XLSX/CSV. |
+| RF04 | API REST documentada con OpenAPI/Swagger. |
+| RF05 | Proyección de notas con regresión lineal. |
+| RF06 | Detección de riesgo académico con clasificación. |
 
+---
 
-Push al remoto:
+## ⚙️ Requerimientos No Funcionales  
 
-git push origin feat/ml-module
+| ID | Descripción |
+|----|--------------|
+| RNF01 | Interfaz limpia y responsive (Angular). |
+| RNF02 | API escalable, segura y modular. |
+| RNF03 | Cumplimiento de convenciones RESTful. |
+| RNF04 | Validaciones robustas y mensajes de error claros. |
+| RNF05 | Código documentado y estructurado bajo buenas prácticas. |
 
+---
 
-Merge por PR en GitHub (revisión mutua Levanxx ⇄ JhoanAronith).
+## 📈 Flujo de trabajo en Git  
 
-📊 Endpoints principales
-Método	Endpoint	Descripción
-POST	/api/login/	Autenticación JWT
-GET	/api/estudiantes/	Lista de estudiantes
-GET	/api/notas/export/pdf/	Exporta notas a PDF
-POST	/api/notas/ml/proyeccion/	Predice nota final
-POST	/api/notas/ml/riesgo/	Determina riesgo académico
-🧪 Machine Learning Integrado
-Modelo	Tipo	Descripción
-Regresión lineal	LinearRegression	Predice nota final del estudiante
-Clasificación	RandomForestClassifier	Detecta riesgo de desaprobar
+> [!TIP]
+> ### 🔹 Flujo de commits atómicos y colaborativos
+>  
+> 1. Crear branch por funcionalidad:  
+>    ```bash
+>    git checkout -b feat/ml-module
+>    ```
+>  
+> 2. Commits atómicos (Conventional Commits):  
+>    ```bash
+>    git commit -m "feat(api): agregar endpoint de proyección de nota"
+>    git commit -m "fix(export): corregir error en PDF"
+>    ```
+>  
+> 3. Push al remoto:  
+>    ```bash
+>    git push origin feat/ml-module
+>    ```
+>  
+> 4. Merge por PR en GitHub (revisión mutua Levanxx ⇄ JhoanAronith).
 
-🔬 Los modelos se entrenan con datos históricos de notas, ponderaciones y métricas de rendimiento académico.
+---
 
-🏆 Commits y Convenciones
-Tipo	Significado
-feat:	Nueva funcionalidad
-fix:	Corrección de errores
-docs:	Documentación
-chore:	Mantenimiento y configuración
-refactor:	Mejora del código sin alterar la lógica
+## 📊 Endpoints principales  
 
-Cada commit cuenta una parte de la historia de GradeBase: limpio, descriptivo y profesional. 💪
+| Método | Endpoint | Descripción |
+|---------|-----------|-------------|
+| POST | `/api/login/` | Autenticación JWT |
+| GET | `/api/estudiantes/` | Lista de estudiantes |
+| GET | `/api/notas/export/pdf/` | Exporta notas a PDF |
+| POST | `/api/notas/ml/proyeccion/` | Predice nota final |
+| POST | `/api/notas/ml/riesgo/` | Determina riesgo académico |
 
-💡 Próximas Mejoras
+---
 
- Migración a PostgreSQL
+## 🧪 Machine Learning Integrado  
 
- Dashboard docente con visualización estadística
+| Modelo | Tipo | Descripción |
+|---------|------|-------------|
+| Regresión lineal | `LinearRegression` | Predice nota final del estudiante |
+| Clasificación | `RandomForestClassifier` | Detecta riesgo de desaprobar |
 
- Despliegue en Railway/Render
+> 🔬 Los modelos se entrenan con datos históricos de notas, ponderaciones y métricas de rendimiento académico.
 
- Sistema de alertas automáticas para riesgo alto
+---
 
-🛡️ Licencia
+## 🏆 Commits y Convenciones  
 
-Este proyecto se distribuye bajo MIT License — libre para aprender, adaptar y mejorar.
+| Tipo | Significado |
+|------|--------------|
+| `feat:` | Nueva funcionalidad |
+| `fix:` | Corrección de errores |
+| `docs:` | Documentación |
+| `chore:` | Mantenimiento y configuración |
+| `refactor:` | Mejora del código sin alterar la lógica |
 
-“Educar con datos, aprender con inteligencia.
-GradeBase: tu base para crecer.” 📘
+> Cada commit cuenta una parte de la historia de **GradeBase**: limpio, descriptivo y profesional. 💪
+
+---
+
+## 💡 Próximas Mejoras  
+
+- [ ] Migración a PostgreSQL  
+- [ ] Dashboard docente con visualización estadística  
+- [ ] Despliegue en Railway/Render  
+- [ ] Sistema de alertas automáticas para riesgo alto  
+
+---
+
+## 🛡️ Licencia  
+
+Este proyecto se distribuye bajo **MIT License** — libre para aprender, adaptar y mejorar.
+
+---
+
+> _“Educar con datos, aprender con inteligencia.  
+> GradeBase: tu base para crecer.”_ 📘
