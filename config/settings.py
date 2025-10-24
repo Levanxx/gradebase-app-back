@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ========================
 # CONFIGURACIONES BÁSICAS
 # ========================
-SECRET_KEY = "django-insecure-pon-aqui-tu-secret"  
+SECRET_KEY = "django-insecure-pon-aqui-tu-secret"
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
@@ -58,7 +58,8 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # templates globales (PDF, etc.)
+ 
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -105,7 +106,7 @@ USE_TZ = True
 # ARCHIVOS ESTÁTICOS
 # ========================
 STATIC_URL = "static/"
-# Evita el warning si no existe la carpeta 'static'
+# (opcional) carpeta local de estáticos durante dev, si existe
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

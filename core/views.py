@@ -1,3 +1,4 @@
+# core/views.py
 from django.http import HttpResponse
 from django.db.models import Q, Avg
 from django.utils import timezone
@@ -24,7 +25,7 @@ from .permissions import (
     IsStudentReadOwnNotas, IsTeacherOfSectionForWrite, is_in_group
 )
 
-# ML helpers (opcionales)
+# ML helpers
 from core.ml import predict_final_for_seccion, predict_risk_for_seccion
 
 
@@ -66,13 +67,12 @@ class EstudianteViewSet(viewsets.ModelViewSet):
         elif is_in_group(user, "ESTUDIANTE"):
             qs = Estudiante.objects.filter(user=user)
         elif is_in_group(user, "DOCENTE"):
-            # estudiantes que tengan alguna nota en secciones del profesor
             secciones_ids = Seccion.objects.filter(profesor=user).values_list("id", flat=True)
             qs = Estudiante.objects.filter(notas__seccion_id__in=secciones_ids).distinct()
         else:
             qs = Estudiante.objects.none()
 
-        # --- filtro opcional por sección (?seccion=<id>) para el combo de alumnos
+        # Filtro opcional por sección (?seccion=<id>) para combo de alumnos
         seccion_id = self.request.query_params.get("seccion")
         if seccion_id:
             qs = qs.filter(notas__seccion_id=seccion_id).distinct()
@@ -96,7 +96,6 @@ class SeccionViewSet(viewsets.ModelViewSet):
     queryset = Seccion.objects.select_related("curso")
     serializer_class = SeccionSerializer
     permission_classes = [IsAuthenticated]
-    # para poder filtrar por ?curso__codigo=FS, etc.
     filterset_fields = ["curso__codigo", "nombre", "id"]
 
     def get_queryset(self):
@@ -119,12 +118,11 @@ class NotaViewSet(viewsets.ModelViewSet):
     queryset = Nota.objects.select_related("estudiante", "seccion", "seccion__curso")
     serializer_class = NotaSerializer
     permission_classes = [IsAuthenticated, IsStudentReadOwnNotas, IsTeacherOfSectionForWrite]
-    # Filtros de lista
     filterset_fields = [
-        "seccion",                    # ?seccion=<id>
-        "seccion__curso__codigo",     # ?seccion__curso__codigo=FS
-        "seccion__nombre",            # ?seccion__nombre=A
-        "estudiante__codigo",         # ?estudiante__codigo=U123...
+        "seccion",
+        "seccion__curso__codigo",
+        "seccion__nombre",
+        "estudiante__codigo",
     ]
 
     def get_queryset(self):
@@ -166,29 +164,29 @@ class NotaViewSet(viewsets.ModelViewSet):
         serializer.save()
 
     # -------------------------------------------------------------------
-    # EXPORTACIONES
+    # EXPORTACIONES (permisos solo lectura)
     # -------------------------------------------------------------------
-    @action(detail=False, methods=["get"], url_path="export/csv")
+    @action(detail=False, methods=["get"], url_path="export/csv", permission_classes=[IsAuthenticated])
     def export_csv(self, request):
         qs = self._filtered_queryset_for_export()
         if not qs.exists():
             return HttpResponse("No hay datos para exportar con los filtros dados.", status=400)
 
-        resp = HttpResponse(content_type="text/csv")
+        resp = HttpResponse(content_type="text/csv; charset=utf-8")
         resp["Content-Disposition"] = 'attachment; filename="notas.csv"'
         w = csv.writer(resp)
         w.writerow(["Codigo","Estudiante","Curso","Seccion","Av1","Av2","Av3","Participacion","Proyecto","Final"])
         for n in qs:
             w.writerow([
                 n.estudiante.codigo,
-                f"{n.estudiante.nombre} {n.estudiante.apellido}",
+                f"{n.estudiante.apellido}, {n.estudiante.nombre}",
                 n.seccion.curso.codigo,
                 n.seccion.nombre,
                 n.avance1, n.avance2, n.avance3, n.participacion, n.proyecto_final, n.nota_final
             ])
         return resp
 
-    @action(detail=False, methods=["get"], url_path="export/xlsx")
+    @action(detail=False, methods=["get"], url_path="export/xlsx", permission_classes=[IsAuthenticated])
     def export_xlsx(self, request):
         qs = self._filtered_queryset_for_export()
         if not qs.exists():
@@ -202,7 +200,7 @@ class NotaViewSet(viewsets.ModelViewSet):
         for n in qs:
             ws.append([
                 n.estudiante.codigo,
-                f"{n.estudiante.nombre} {n.estudiante.apellido}",
+                f"{n.estudiante.apellido}, {n.estudiante.nombre}",
                 n.seccion.curso.codigo,
                 n.seccion.nombre,
                 n.avance1, n.avance2, n.avance3, n.participacion, n.proyecto_final, n.nota_final
@@ -214,7 +212,7 @@ class NotaViewSet(viewsets.ModelViewSet):
         wb.save(resp)
         return resp
 
-    @action(detail=False, methods=["get"], url_path="export/pdf")
+    @action(detail=False, methods=["get"], url_path="export/pdf", permission_classes=[IsAuthenticated])
     def export_pdf(self, request):
         qs = self._filtered_queryset_for_export().order_by(
             "seccion__curso__codigo", "seccion__nombre",
@@ -244,7 +242,7 @@ class NotaViewSet(viewsets.ModelViewSet):
         return response
 
     # -------------------------------------------------------------------
-    # MACHINE LEARNING (opcional)
+    # MACHINE LEARNING
     # -------------------------------------------------------------------
     def _resolve_seccion_from_request(self, request):
         """
@@ -312,16 +310,37 @@ class NotaViewSet(viewsets.ModelViewSet):
             "predictions": out["predictions"]
         })
 
-    # Helpers para export
+    # --------------------------- Helpers para export ---------------------------
     def _filtered_queryset_for_export(self):
+        """
+        Acepta parámetros GET:
+          - curso  (alias: seccion__curso__codigo)
+          - seccion: nombre o ID (alias opcional: seccion_id)
+          - codigo (alias: estudiante__codigo)
+        Respeta visibilidad de get_queryset() (staff/docente/estudiante).
+        """
         qs = self.get_queryset().select_related("estudiante", "seccion", "seccion__curso")
-        curso = self.request.GET.get("curso")
-        seccion = self.request.GET.get("seccion")
-        codigo = self.request.GET.get("codigo")
+
+        # curso
+        curso = (
+            self.request.GET.get("curso")
+            or self.request.GET.get("seccion__curso__codigo")
+        )
         if curso:
             qs = qs.filter(seccion__curso__codigo=curso)
-        if seccion:
-            qs = qs.filter(seccion__nombre=seccion)
+
+        # seccion (nombre o id)
+        seccion_raw = self.request.GET.get("seccion") or self.request.GET.get("seccion_id")
+        if seccion_raw:
+            s = str(seccion_raw).strip()
+            if s.isdigit():
+                qs = qs.filter(Q(seccion_id=int(s)) | Q(seccion__nombre=s))
+            else:
+                qs = qs.filter(seccion__nombre=s)
+
+        # codigo de estudiante
+        codigo = self.request.GET.get("codigo") or self.request.GET.get("estudiante__codigo")
         if codigo:
             qs = qs.filter(estudiante__codigo=codigo)
+
         return qs

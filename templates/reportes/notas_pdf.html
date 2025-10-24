@@ -1,84 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<title>Reporte de Notas</title>
-<style>
-  /* xhtml2pdf soporta un subconjunto de CSS. Evita flex/grid/position fixed */
-  @page {
-    size: A4;
-    margin: 20mm 15mm;
-  }
-  body {
-    font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    color: #111;
-  }
-  .header {
-    border-bottom: 1px solid #444;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
-  }
-  .header h1 {
-    font-size: 18px;
-    margin: 0 0 4px 0;
-  }
-  .meta {
-    font-size: 10px;
-    color: #555;
-  }
-  .section-title {
-    font-size: 14px;
-    margin: 10px 0 4px 0;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 6px;
-  }
-  th, td {
-    border: 1px solid #333;
-    padding: 6px;
-  }
-  th {
-    background: #efefef;
-    font-weight: bold;
-    text-align: left;
-  }
-  td.right { text-align: right; }
-  .footer {
-    margin-top: 10px;
-    font-size: 10px;
-    color: #555;
-  }
-</style>
+  <meta charset="utf-8" />
+  <title>Reporte de Notas</title>
+  <style>
+    @page { size: A4; margin: 20mm; }
+    body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; font-size: 11pt; }
+    h1 { font-size: 16pt; margin: 0 0 10px 0; }
+    .meta { font-size: 9pt; color: #444; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #999; padding: 4px 6px; }
+    th { background: #eee; }
+    .right { text-align: right; }
+  </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Reporte de Notas</h1>
-    <div class="meta">
-      Generado por: {{ usuario }} |
-      Fecha: {{ generado_en|date:"Y-m-d H:i" }}
-    </div>
-  </div>
-
-  <div class="section-title">
-    Curso: {{ curso }}{% if seccion %} — Sección: {{ seccion }}{% endif %}
+  <h1>Reporte de Notas</h1>
+  <div class="meta">
+    Generado: {{ generado_en|date:"Y-m-d H:i" }} &nbsp;|&nbsp;
+    Usuario: {{ usuario }} &nbsp;|&nbsp;
+    Curso: {{ curso }} &nbsp;|&nbsp;
+    Sección: {{ seccion }}
   </div>
 
   <table>
     <thead>
       <tr>
-        <th style="width: 16%;">Código</th>
-        <th style="width: 30%;">Estudiante</th>
-        <th style="width: 14%;">Curso</th>
-        <th style="width: 12%;">Sección</th>
-        <th style="width: 8%;">Av1</th>
-        <th style="width: 8%;">Av2</th>
-        <th style="width: 8%;">Av3</th>
-        <th style="width: 12%;">Participación</th>
-        <th style="width: 12%;">Proyecto</th>
-        <th style="width: 10%;">Final</th>
+        <th>Código</th>
+        <th>Estudiante</th>
+        <th>Curso</th>
+        <th>Sección</th>
+        <th class="right">Av1</th>
+        <th class="right">Av2</th>
+        <th class="right">Av3</th>
+        <th class="right">Part.</th>
+        <th class="right">Proyecto</th>
+        <th class="right">Final</th>
       </tr>
     </thead>
     <tbody>
@@ -88,19 +45,25 @@
         <td>{{ n.estudiante.apellido }}, {{ n.estudiante.nombre }}</td>
         <td>{{ n.seccion.curso.codigo }}</td>
         <td>{{ n.seccion.nombre }}</td>
-        <td class="right">{{ n.avance1|default:"-" }}</td>
-        <td class="right">{{ n.avance2|default:"-" }}</td>
-        <td class="right">{{ n.avance3|default:"-" }}</td>
-        <td class="right">{{ n.participacion|default:"-" }}</td>
-        <td class="right">{{ n.proyecto_final|default:"-" }}</td>
-        <td class="right">{{ n.nota_final|default:"-" }}</td>
+        <td class="right">{{ n.avance1|floatformat:0 }}</td>
+        <td class="right">{{ n.avance2|floatformat:0 }}</td>
+        <td class="right">{{ n.avance3|floatformat:0 }}</td>
+        <td class="right">{{ n.participacion|floatformat:0 }}</td>
+        <td class="right">{{ n.proyecto_final|floatformat:0 }}</td>
+        <td class="right">{{ n.nota_final|floatformat:0 }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="10">No hay datos para los filtros seleccionados.</td>
       </tr>
       {% endfor %}
     </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="9" class="right">Promedio general</th>
+        <th class="right">{{ promedio_general|default:"-"|floatformat:1 }}</th>
+      </tr>
+    </tfoot>
   </table>
-
-  <div class="footer">
-    Promedio general (nota final): {{ promedio_general|floatformat:2 }}
-  </div>
 </body>
 </html>

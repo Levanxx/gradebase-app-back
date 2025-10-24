@@ -32,7 +32,7 @@ class SeccionSerializer(serializers.ModelSerializer):
 
 
 class NotaSerializer(serializers.ModelSerializer):
-    # campos de solo lectura para pintar la tabla de manera amigable
+    # campos de solo lectura para pintar la tabla
     estudiante_codigo = serializers.CharField(source='estudiante.codigo', read_only=True)
     estudiante_nombre = serializers.SerializerMethodField()
     seccion_nombre = serializers.CharField(source='seccion.nombre', read_only=True)
