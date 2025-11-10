@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: gradebase
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn gradebase.wsgi:application --bind 0.0.0.0:$PORT
+    plan: free
