@@ -1,0 +1,29 @@
+# Archivos y carpetas de control de versiones
+.git
+.gitignore
+.vscode/
+
+# Entornos virtuales
+.venv/
+env/
+venv/
+
+# Cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos temporales y logs
+*.log
+*.tmp
+
+# Datos locales o resultados
+*.sqlite3
+data/
+media/
+uploads/
+
+# Archivos de dependencias grandes o no necesarios
+tests/
+docs/
