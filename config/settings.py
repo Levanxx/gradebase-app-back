@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",   # ← AGREGA ESTO AQUÍ
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -154,3 +155,11 @@ SIMPLE_JWT = {
 # CORS (dev)
 # ========================
 CORS_ALLOW_ALL_ORIGINS = True
+
+import os
+
+# Carpeta donde collectstatic guardará los archivos para producción
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise: almacenamiento comprimido para archivos estáticos
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
